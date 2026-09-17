@@ -149,9 +149,16 @@ hermes -z "Use the terminal tool to run 'pwd && ls -la / && ls /workspace' ..."
    (`CRON_TEST_OK <timestamp>`) to `~/.hermes/cron/output/<job-id>/`, and
    self-removed afterward since it was created with `--repeat 1`. Both
    test jobs were deleted after verification; nothing is left scheduled.
-   Real unattended reminders/cron still need `hermes gateway install`
-   (a launchd user service) to run when no session is open — not done
-   yet, pending approval since it's a login item.
+   **Update:** with your approval, ran `hermes gateway install`. It's now
+   a launchd user agent (`~/Library/LaunchAgents/ai.hermes.gateway.plist`,
+   no sudo, auto-starts at login, auto-restarts on crash) — confirmed via
+   `hermes gateway status` ("Gateway is supervised by launchd") and
+   `launchctl list`. Its log correctly reports "No messaging platforms
+   enabled" (email/Telegram/etc. still deferred). Proved fully unattended
+   firing: created a job, did **not** manually tick it, and it fired on
+   its own ~90s later, delivering `GATEWAY_AUTOFIRE_OK` to
+   `~/.hermes/cron/output/`. Self-removed after (repeat=1). Real
+   reminders/scheduled tasks now work even with no chat session open.
 4. **`hermes doctor` non-blocking warnings:**
    - npm audit: 2 vulnerabilities in the browser-tools workspace, 6 in the
      web workspace (Playwright/Node ecosystem transitive deps).
