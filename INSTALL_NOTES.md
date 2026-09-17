@@ -140,7 +140,19 @@ hermes -z "Use the terminal tool to run 'pwd && ls -la / && ls /workspace' ..."
    tell me the exact page title."` → returned the live page title
    correctly. `hermes doctor` now shows `agent-browser` and `Playwright
    Chromium (browser engine)` both green.
-3. **`hermes doctor` non-blocking warnings:**
+3. **Cron scheduling — verified working.** Without the gateway daemon
+   installed, jobs are created and stored but don't fire automatically
+   (confirmed: creating a job prints "Gateway is not running — jobs won't
+   fire automatically"). Forced a one-shot job to run manually with
+   `hermes cron tick` instead of installing the gateway: it executed the
+   prompt, delivered the exact requested output
+   (`CRON_TEST_OK <timestamp>`) to `~/.hermes/cron/output/<job-id>/`, and
+   self-removed afterward since it was created with `--repeat 1`. Both
+   test jobs were deleted after verification; nothing is left scheduled.
+   Real unattended reminders/cron still need `hermes gateway install`
+   (a launchd user service) to run when no session is open — not done
+   yet, pending approval since it's a login item.
+4. **`hermes doctor` non-blocking warnings:**
    - npm audit: 2 vulnerabilities in the browser-tools workspace, 6 in the
      web workspace (Playwright/Node ecosystem transitive deps).
    - AWS Bedrock `AccessDeniedException` for IAM user
