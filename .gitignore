@@ -1,0 +1,11 @@
+# Never commit secrets
+.env
+*.env
+auth.json
+*.key
+*.pem
+id_rsa*
+*.token
+.hermes/
+node_modules/
+.DS_Store
