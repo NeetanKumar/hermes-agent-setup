@@ -128,12 +128,18 @@ hermes -z "Use the terminal tool to run 'pwd && ls -la / && ls /workspace' ..."
    `hermes -z "prompt"` (top-level, true one-shot) and
    `hermes chat -q "..." --oneshot` exist and work. The two doc pages each
    only mentioned one of them.
-2. **Browser/Chromium not yet downloaded.** It's a lazy dependency on this
-   install (no `playwright` entry in `package.json`); `npx playwright
-   install chromium` reported "without first installing your project's
-   dependencies" because nothing has enabled/used the browser tool yet.
-   It will install itself the first time the agent actually uses `browser`,
-   or run `hermes tools` → Browser → post-setup hook manually.
+2. **Browser tools — resolved.** `npx playwright install chromium` was the
+   wrong path (that's a legacy fallback; no `playwright` entry in
+   `package.json`, which is why it warned about missing project deps).
+   The default browser backend is Hermes's own "browser-use" managed CLI,
+   which already bundled its own Chromium during the base install. Verified
+   working via the correct, officially supported hook:
+   `hermes tools post-setup agent_browser` → "Chromium browser already
+   installed, nothing to do". Confirmed end-to-end with a real navigation:
+   `hermes -z "Use the browser tool to navigate to https://example.com and
+   tell me the exact page title."` → returned the live page title
+   correctly. `hermes doctor` now shows `agent-browser` and `Playwright
+   Chromium (browser engine)` both green.
 3. **`hermes doctor` non-blocking warnings:**
    - npm audit: 2 vulnerabilities in the browser-tools workspace, 6 in the
      web workspace (Playwright/Node ecosystem transitive deps).
