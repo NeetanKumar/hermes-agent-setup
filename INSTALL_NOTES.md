@@ -177,10 +177,34 @@ hermes -z "Use the terminal tool to run 'pwd && ls -la / && ls /workspace' ..."
    a process that was running during this session. It is completely
    separate from `~/.hermes/hermes-agent` (the official Nous Research
    install) and was not touched.
-5. **Cron/reminders + email gateway: deferred.** You decided to bring the
-   gateway back in scope for email send/receive and reminders, but it
-   needs a dedicated mailbox (not your personal one) with an app password
-   before `hermes gateway setup` can be run. Not started — see "Next steps".
+5. **Email gateway — set up and verified working, both directions.**
+   Dedicated mailbox: `trialbasis44@gmail.com` (2FA + App Password, not
+   the account's real login password). `hermes gateway setup`'s Email
+   screen turned out to be informational-only in this CLI version (docs
+   describe an interactive prompt; the actual behavior is "set these env
+   vars yourself" — a real doc/CLI gap). Configured via `hermes config
+   set` instead: non-secret values (`EMAIL_ADDRESS`, `EMAIL_IMAP_HOST`,
+   `EMAIL_IMAP_PORT`, `EMAIL_SMTP_HOST`, `EMAIL_SMTP_PORT`) set directly;
+   `EMAIL_PASSWORD`, `EMAIL_ALLOWED_USERS`, `EMAIL_HOME_ADDRESS` set by
+   the user themselves (assistant never read these). `EMAIL_ALLOW_ALL_USERS`
+   left unset and `gateway.allow_all_users: false` confirmed — only the
+   user's personal address can talk to the bot.
+   After `hermes gateway restart`, log confirmed: IMAP connection test
+   passed, SMTP connection test passed, a startup notification email sent
+   successfully (landed in Spam initially — expected for a brand-new
+   sending address with no reputation yet; marked Not Spam).
+   **Receive side also verified:** user replied to that email; gateway
+   log shows it detected the inbound message within its poll interval,
+   generated a response via the agent, and sent a reply back — full
+   round trip in ~12 seconds. Email send/receive both confirmed working,
+   fully unattended (gateway running as the launchd service, no chat
+   session needed).
+   One caveat noticed in the restart log, not yet acted on: "Docker
+   backend is enabled for the messaging gateway but no explicit
+   host-visible output mount is configured" — file/image attachments
+   over email could fail to deliver since the terminal tool's outputs
+   live inside the container. Text-only messages are unaffected. Fix
+   later by adding an output volume mount if attachments are needed.
 6. **Config backup:** pre-migration config saved at
    `~/.hermes/config.yaml.bak.<timestamp>` in case anything needs reverting.
 
