@@ -150,9 +150,41 @@ retried with evasion techniques.
   real-profile snapshot has not been refreshed with the Wellfound login
   yet — the profile snapshot in use still only reflects whatever was
   captured during the original Naukri setup. First live run was
-  triggered anyway per instruction; see run output for what that means
-  in practice (Wellfound apply may not be authenticated until the
-  snapshot is refreshed with Chrome closed).
+  triggered anyway per instruction, and confirmed the problem directly:
+  every `browser_exec` call failed with the same profile-lock error
+  (`chrome is running and holds the profile's Login Data ... write
+  lock`), repeated across a dozen retries, because Chrome was never
+  closed. **Chrome still needs to be fully quit (Cmd+Q) for this job to
+  do anything at all.**
+
+## Reporting (email)
+
+Both cron jobs (`naukri-autoapply`, paused, and the live `job-autoapply`)
+were created with `--deliver email`, which is Hermes's built-in per-job
+report channel — no separate reporting mechanism needed:
+
+- After every run, the agent's final text response (the report described
+  in each job's own prompt: mode, what was applied, what was skipped and
+  why) is sent as an email automatically. No extra step, no separate
+  script.
+- Delivery target is resolved from `~/.hermes/channel_directory.json` —
+  currently `nitinbhagat16032002@gmail.com`.
+- Failures are routed to the same place by default (`--failure-deliver`
+  wasn't set, so it follows `--deliver`) — a crashed or erroring run
+  still produces an email, not silence.
+- Confirmed working end to end on the first Naukri dry run: log line
+  `cron.scheduler: Job '65ec7222b6f1': delivered to
+  email:nitinbhagat16032002@gmail.com` after the run completed.
+- To check whether a given run actually delivered (rather than just
+  finished), grep `~/.hermes/logs/agent.log` for the job ID and look for
+  `delivered to email:...`, or `hermes cron runs <job_id>` for the
+  execution's status.
+
+The one operational gotcha found so far: if a run takes long enough to
+hit the scheduler's dispatch-lateness window, or gets stuck retrying a
+failing tool (e.g. the browser-profile lock below), the email doesn't go
+out until the turn actually ends — a stuck run means a delayed or missing
+report, not a wrong one.
 
 ## Lessons for next time
 
