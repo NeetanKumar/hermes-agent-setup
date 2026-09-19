@@ -108,15 +108,34 @@ retried with evasion techniques.
 ## Current state
 
 - Cron job `naukri-autoapply` (`65ec7222b6f1`) exists but is **paused**.
-- Real-profile Chrome snapshot is in place and reusable for whichever
-  site comes next.
-- Decision in progress: drop Naukri, broaden to other job sources.
-  AngelList/Wellfound confirmed as one target so far; still deciding
-  between "shortlist-only everywhere" (Hermes finds and filters, human
-  clicks Apply — zero ToS/bot-defense risk, works uniformly) vs.
-  "auto-apply where a site technically tolerates it, shortlist elsewhere."
-  LinkedIn is expected to have similar bot-detection to Naukri if
-  auto-apply is attempted there.
+  Naukri is dropped as a source entirely — not being retried.
+- Scope has been broadened twice since the Naukri block, both times by
+  explicit user direction, away from the "shortlist-only" option I'd
+  recommended:
+  - First: don't limit to Naukri — search "all over the internet."
+  - Then, when asked to confirm apply-mode: **auto-apply for real, with a
+    report after each run** — not shortlist-only. This applies to
+    whatever new sources replace Naukri, not to Naukri itself.
+  - Then, clarified further: not just Wellfound/AngelList — **all
+    company websites/careers pages** should be in scope too, i.e. a
+    general web-wide search (job boards + direct company career pages),
+    not a fixed platform list.
+- Still true from the original design regardless of source: same
+  criteria (AI Engineer/Backend Engineer/Backend Developer, 0-4 yrs,
+  exclude ML Engineer, 23 LPA salary floor when listed, remote
+  preferred but any location, up to 30 applications/day, dedup against
+  everything already applied to), and the same per-site rule from the
+  Naukri incident — if a site hard-blocks the automated session
+  (Akamai/PerimeterX/Cloudflare-style WAF denial), stop on that site and
+  report it, never attempt stealth/evasion to get past it. That rule is
+  non-negotiable regardless of the apply-mode decision above.
+- **Currently blocked on:** refreshing the real-profile Chrome snapshot
+  so it picks up the Wellfound login. Confirmed logged into
+  Wellfound/AngelList in real Chrome, but `snapshot_real_profile('chrome')`
+  needs Chrome fully quit (Cmd+Q, not just closed windows) to back up the
+  cookie/login SQLite DBs on macOS — as of this update Chrome is still
+  running, so the snapshot hasn't been refreshed yet and the new
+  broader-scope job hasn't been built or run.
 
 ## Lessons for next time
 
