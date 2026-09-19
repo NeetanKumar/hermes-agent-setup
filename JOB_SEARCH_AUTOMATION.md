@@ -129,13 +129,30 @@ retried with evasion techniques.
   (Akamai/PerimeterX/Cloudflare-style WAF denial), stop on that site and
   report it, never attempt stealth/evasion to get past it. That rule is
   non-negotiable regardless of the apply-mode decision above.
-- **Currently blocked on:** refreshing the real-profile Chrome snapshot
-  so it picks up the Wellfound login. Confirmed logged into
-  Wellfound/AngelList in real Chrome, but `snapshot_real_profile('chrome')`
-  needs Chrome fully quit (Cmd+Q, not just closed windows) to back up the
-  cookie/login SQLite DBs on macOS — as of this update Chrome is still
-  running, so the snapshot hasn't been refreshed yet and the new
-  broader-scope job hasn't been built or run.
+- **Resume gap:** there is no resume/CV file anywhere on this machine.
+  Company career-page ATS forms (Greenhouse, Lever, Ashby, Workday, etc.)
+  almost always require uploading one, and fabricating resume content or
+  screening-question answers isn't something the job is allowed to do.
+  Decision: apply only where a platform reuses a resume already on file
+  via native one-click apply (e.g. Wellfound apply-with-profile); every
+  company career page that needs a fresh upload gets reported as "found
+  but skipped," never attempted.
+- **Built:** a new, broader cron job `job-autoapply` (`9d00ac003645`),
+  daily at 10:00 IST, `--deliver email`, mode `live` in
+  `job-autoapply/state.json` (separate from the retired
+  `naukri-autoapply/` state dir — dedup is now keyed by canonical job URL
+  + source rather than a platform-specific job ID, since sources are no
+  longer fixed to one site). Naukri is explicitly named as off-limits in
+  the job's own prompt so it can't be retried by accident. The Akamai/
+  bot-defense stop rule from the Naukri incident carries over verbatim
+  and applies to every site the job touches, not just Naukri.
+- Chrome was still running (not quit) when this job was built, so the
+  real-profile snapshot has not been refreshed with the Wellfound login
+  yet — the profile snapshot in use still only reflects whatever was
+  captured during the original Naukri setup. First live run was
+  triggered anyway per instruction; see run output for what that means
+  in practice (Wellfound apply may not be authenticated until the
+  snapshot is refreshed with Chrome closed).
 
 ## Lessons for next time
 
