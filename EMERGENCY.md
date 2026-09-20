@@ -41,6 +41,28 @@ How to stop Hermes fast. Job IDs at time of writing: `job-autoapply`
 - `hermes gateway stop` staying stopped (no respawn) is inferred from the plist
   (`SuccessfulExit=false`), not tested. Verify with `launchctl list | grep hermes`.
 
+## What uninstall removes, and how to bring it back
+
+`hermes gateway uninstall` only unloads the launchd job and deletes
+`~/Library/LaunchAgents/ai.hermes.gateway.plist` (read from
+`launchd_uninstall` in `hermes_cli/gateway.py`). It does not touch:
+
+- Cron jobs, their schedules, prompts and paused state
+- `~/.hermes/config.yaml` (including `cron.catch_up_missed`)
+- Email credentials in `~/.hermes/.env`
+- The Chrome profile snapshot, sessions, logs and state DBs
+- This repo and the `job-autoapply/` / `naukri-autoapply/` state files
+
+Reinstalling is about one command:
+
+1. `hermes gateway install` regenerates the plist and loads the service
+   (`hermes gateway start` also regenerates a missing plist).
+2. `hermes cron resume <job_id>` for each job you actually want running.
+
+Only deleting `~/.hermes` itself would mean real re-setup. Running commands in
+this repo does not start anything: it has no `package.json`, and only the
+launchd service starts the gateway and scheduler.
+
 ## Recommended emergency sequence
 
 1. `hermes pause`
