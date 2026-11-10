@@ -108,7 +108,7 @@ approvals:
 plugins:
   enabled: []
 cron:
-  catch_up_missed: true
+  catch_up_missed: false
 kanban:
   review_dispatch: true
 code_execution:
